@@ -1,0 +1,162 @@
+﻿import { useEffect } from 'react'
+import { useLabStore } from '../../../stores/useLabStore'
+import InteractiveEquipment from '../equipment/InteractiveEquipment'
+import HandCursor from '../HandCursor'
+
+export default function LabEnvironment() {
+  const setLabReady = useLabStore((s) => s.setLabReady)
+  const currentExperiment = useLabStore((s) => s.currentExperiment)
+  
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => setLabReady(true), 1500)
+    return () => clearTimeout(timer)
+  }, [setLabReady])
+  
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
+      <pointLight position={[-3, 3, 0]} intensity={0.5} color="#e0f2fe" />
+      
+      {/* Lab Room */}
+      {/* Floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <planeGeometry args={[15, 15]} />
+        <meshStandardMaterial color="#e2e8f0" />
+      </mesh>
+      
+      {/* Back Wall */}
+      <mesh position={[0, 3, -4]} receiveShadow>
+        <planeGeometry args={[15, 6]} />
+        <meshStandardMaterial color="#f8fafc" />
+      </mesh>
+      
+      {/* Lab Bench */}
+      <mesh position={[0, 0.9, 0]} castShadow receiveShadow>
+        <boxGeometry args={[4, 0.1, 1.5]} />
+        <meshStandardMaterial color="#1e293b" />
+      </mesh>
+      
+      {/* Bench Legs */}
+      {[[-1.8, 0.45, -0.6], [-1.8, 0.45, 0.6], [1.8, 0.45, -0.6], [1.8, 0.45, 0.6]].map((pos, i) => (
+        <mesh key={i} position={pos} castShadow>
+          <boxGeometry args={[0.1, 0.9, 0.1]} />
+          <meshStandardMaterial color="#334155" />
+        </mesh>
+      ))}
+      
+      {/* Safety Poster */}
+      <mesh position={[-3.5, 2.5, -3.95]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[1.2, 1.6]} />
+        <meshStandardMaterial color="#fef3c7" />
+      </mesh>
+      
+      {/* Whiteboard */}
+      <mesh position={[1.5, 2.5, -3.95]}>
+        <planeGeometry args={[2.5, 1.5]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+      
+      {/* Cabinet */}
+      <mesh position={[-2.5, 1.5, -3.5]} castShadow>
+        <boxGeometry args={[1, 2.5, 0.8]} />
+        <meshStandardMaterial color="#64748b" />
+      </mesh>
+      
+      {/* Equipment for pH Measurement Experiment */}
+      {currentExperiment?.id === 'c4-ph-measurement' && (
+        <>
+          {/* pH Meter */}
+          <InteractiveEquipment
+            id="phmeter"
+            label="pH-mètre"
+            position={[0, 1.1, 0]}
+            geometry="box"
+            size={[0.05, 0.25, 0.05]}
+            color="#1e40af"
+          />
+          
+          {/* pH Meter Display */}
+          <InteractiveEquipment
+            id="phmeter-display"
+            label="Écran pH"
+            position={[0.3, 1.05, 0.3]}
+            geometry="box"
+            size={[0.12, 0.08, 0.03]}
+            color="#0f172a"
+          />
+          
+          {/* Acid Beaker */}
+          <InteractiveEquipment
+            id="beaker-acid"
+            label="Solution Acide (HCl)"
+            position={[-0.5, 1.05, 0]}
+            geometry="cylinder"
+            size={[0.06, 0.12]}
+            color="#fef3c7"
+            liquidColor="#ef4444"
+            liquidLevel={0.7}
+          />
+          
+          {/* Base Beaker */}
+          <InteractiveEquipment
+            id="beaker-base"
+            label="Solution Basique (NaOH)"
+            position={[0.5, 1.05, 0]}
+            geometry="cylinder"
+            size={[0.06, 0.12]}
+            color="#fef3c7"
+            liquidColor="#3b82f6"
+            liquidLevel={0.7}
+          />
+          
+          {/* Wash Bottle */}
+          <InteractiveEquipment
+            id="wash-bottle"
+            label="Eau Distillée"
+            position={[-1, 1.1, 0.3]}
+            geometry="cylinder"
+            size={[0.04, 0.15]}
+            color="#e0f2fe"
+            liquidColor="#93c5fd"
+            liquidLevel={0.8}
+          />
+          
+          {/* Reagent Bottles */}
+          <InteractiveEquipment
+            id="bottle-hcl"
+            label="HCl 0.1M"
+            position={[-1.2, 1.1, -0.3]}
+            geometry="cylinder"
+            size={[0.035, 0.1]}
+            color="#fef9c3"
+          />
+          
+          <InteractiveEquipment
+            id="bottle-naoh"
+            label="NaOH 0.1M"
+            position={[-0.9, 1.1, -0.3]}
+            geometry="cylinder"
+            size={[0.035, 0.1]}
+            color="#dbeafe"
+          />
+          
+          {/* Petri Dish */}
+          <InteractiveEquipment
+            id="petri-dish"
+            label="Boîte de Pétri"
+            position={[1, 1.0, 0]}
+            geometry="cylinder"
+            size={[0.08, 0.02]}
+            color="#f1f5f9"
+          />
+        </>
+      )}
+      
+      {/* Hand cursor for dragging */}
+      <HandCursor />
+    </>
+  )
+}

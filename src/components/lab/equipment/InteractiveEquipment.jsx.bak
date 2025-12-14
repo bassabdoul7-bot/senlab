@@ -1,0 +1,171 @@
+﻿import { useRef, useState, useEffect } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
+import { useLabStore } from '../../../stores/useLabStore'
+import * as THREE from 'three'
+
+export default function InteractiveEquipment({ 
+  id, 
+  label, 
+  position, 
+  geometry = 'box',
+  size = [0.1, 0.2, 0.1],
+  color = '#3b82f6',
+  liquidColor = null,
+  liquidLevel = 0
+}) {
+  const meshRef = useRef()
+  const [hovered, setHovered] = useState(false)
+  
+  const currentStep = useLabStore((s) => s.currentStep)
+  const currentExperiment = useLabStore((s) => s.currentExperiment)
+  const isDragging = useLabStore((s) => s.isDragging)
+  const selectedObject = useLabStore((s) => s.selectedObject)
+  const selectObject = useLabStore((s) => s.selectObject)
+  const dropObject = useLabStore((s) => s.dropObject)
+  const handleClick = useLabStore((s) => s.handleClick)
+  const objectivesDismissed = useLabStore((s) => s.objectivesDismissed)
+  
+  // Get current step data
+  const stepData = currentExperiment?.steps?.[currentStep]
+  
+  // Check if this object is highlighted for current step
+  const isHighlighted = stepData?.highlightIds?.includes(id)
+  const isTarget = stepData?.targetId === id
+  const isDestination = stepData?.destinationId === id
+  const isBeingDragged = isDragging && selectedObject === id
+  
+  // Animation
+  useFrame((state) => {
+    if (!meshRef.current || !objectivesDismissed) return
+    
+    // Floating animation for highlighted objects
+    if (isHighlighted && !isBeingDragged) {
+      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 3) * 0.02
+    }
+    
+    // Pulse scale for destination
+    if (isDestination && isDragging) {
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 5) * 0.1
+      meshRef.current.scale.setScalar(scale)
+    } else {
+      meshRef.current.scale.setScalar(1)
+    }
+  })
+  
+  // Handle click
+  const onClick = (e) => {
+    e.stopPropagation()
+    if (!objectivesDismissed) return
+    
+    // If we're dragging and this is destination, drop here
+    if (isDragging && isDestination) {
+      dropObject(id)
+      return
+    }
+    
+    // If this is target for click/observe action
+    if (stepData?.action === 'click' || stepData?.action === 'observe') {
+      handleClick(id)
+      return
+    }
+    
+    // If this is target for drag action, start dragging
+    if (isTarget && stepData?.action === 'drag-to') {
+      selectObject(id)
+    }
+  }
+  
+  // Determine glow color
+  const getEmissiveColor = () => {
+    if (isBeingDragged) return '#fbbf24' // Yellow when being dragged
+    if (isDestination && isDragging) return '#22c55e' // Green for drop target
+    if (isHighlighted) return '#3b82f6' // Blue for highlighted
+    return '#000000'
+  }
+  
+  const getEmissiveIntensity = () => {
+    if (isBeingDragged || (isDestination && isDragging) || isHighlighted || hovered) return 0.5
+    return 0
+  }
+  
+  // Hide if being dragged (hand cursor shows it)
+  if (isBeingDragged) {
+    return null
+  }
+  
+  return (
+    <group position={position}>
+      <mesh
+        ref={meshRef}
+        onClick={onClick}
+        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = isHighlighted ? 'pointer' : 'default' }}
+        onPointerOut={(e) => { e.stopPropagation(); setHovered(false); document.body.style.cursor = 'default' }}
+        castShadow
+        receiveShadow
+      >
+        {geometry === 'cylinder' ? (
+          <cylinderGeometry args={[size[0], size[0], size[1], 32]} />
+        ) : geometry === 'sphere' ? (
+          <sphereGeometry args={[size[0], 32, 32]} />
+        ) : (
+          <boxGeometry args={size} />
+        )}
+        <meshStandardMaterial
+          color={color}
+          transparent={!!liquidColor}
+          opacity={liquidColor ? 0.7 : 1}
+          emissive={getEmissiveColor()}
+          emissiveIntensity={getEmissiveIntensity()}
+        />
+      </mesh>
+      
+      {/* Liquid inside */}
+      {liquidColor && liquidLevel > 0 && (
+        <mesh position={[0, -size[1]/2 + (size[1] * liquidLevel)/2, 0]}>
+          <cylinderGeometry args={[size[0] * 0.9, size[0] * 0.9, size[1] * liquidLevel, 32]} />
+          <meshStandardMaterial color={liquidColor} transparent opacity={0.8} />
+        </mesh>
+      )}
+      
+      {/* Label */}
+      {(isHighlighted || hovered) && objectivesDismissed && (
+        <Html position={[0, size[1]/2 + 0.1, 0]} center distanceFactor={10}>
+          <div style={{
+            background: isDestination && isDragging ? '#22c55e' : isHighlighted ? '#3b82f6' : '#1e293b',
+            color: 'white',
+            padding: '8px 14px',
+            borderRadius: '10px',
+            fontSize: '13px',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            border: '2px solid rgba(255,255,255,0.3)',
+            animation: isHighlighted ? 'pulse 1s ease-in-out infinite' : 'none'
+          }}>
+            {isDestination && isDragging ? '🎯 Déposez ici!' : label}
+            {isTarget && stepData?.action === 'drag-to' && !isDragging && (
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '2px' }}>
+                ✋ Cliquez pour prendre
+              </div>
+            )}
+          </div>
+          <style>{`
+            @keyframes pulse {
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.05); }
+            }
+          `}</style>
+        </Html>
+      )}
+      
+      {/* Glow ring for destination */}
+      {isDestination && isDragging && (
+        <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, 0.01, 0]}>
+          <ringGeometry args={[size[0] * 1.5, size[0] * 2, 32]} />
+          <meshBasicMaterial color="#22c55e" transparent opacity={0.5} side={THREE.DoubleSide} />
+        </mesh>
+      )}
+    </group>
+  )
+}
