@@ -1,6 +1,5 @@
 ﻿import { useEffect, Suspense, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { useControls } from 'leva'
 import { useLabStore } from '../../../stores/useLabStore'
 import HandCursor from '../HandCursor'
 
@@ -20,110 +19,42 @@ function LabRoom() {
 
 function PHMeter() {
   const { scene } = useGLTF('/models/equipment/chemistry/phmeter.glb')
-  
-  const controls = useControls('pH-Meter', {
-    x: { value: 1.50, min: -5, max: 5, step: 0.05 },
-    y: { value: 0.85, min: 0, max: 3, step: 0.05 },
-    z: { value: -1.08, min: -5, max: 5, step: 0.05 },
-    scale: { value: 1.43, min: 0.01, max: 3, step: 0.01 },
-    rotY: { value: -2.1, min: -3.14, max: 3.14, step: 0.1 },
-  })
-
   const clonedScene = useMemo(() => {
     const clone = scene.clone()
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-
-  return (
-    <primitive 
-      object={clonedScene} 
-      position={[controls.x, controls.y, controls.z]} 
-      scale={controls.scale} 
-      rotation={[0, controls.rotY, 0]}
-    />
-  )
+  return <primitive object={clonedScene} position={[1.50, 0.85, -1.51]} scale={2.17} rotation={[0, -2.1, 0]} />
 }
 
 function BeakerAcid() {
   const { scene } = useGLTF('/models/equipment/chemistry/beaker.glb')
-  
-  const controls = useControls('Beaker-Acid', {
-    x: { value: 1.20, min: -5, max: 5, step: 0.05 },
-    y: { value: 1.30, min: 0, max: 3, step: 0.05 },
-    z: { value: -0.25, min: -5, max: 5, step: 0.05 },
-    scale: { value: 0.10, min: 0.01, max: 1, step: 0.01 },
-    rotY: { value: 0, min: -3.14, max: 3.14, step: 0.1 },
-  })
-
   const clonedScene = useMemo(() => {
     const clone = scene.clone()
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-
-  return (
-    <primitive 
-      object={clonedScene} 
-      position={[controls.x, controls.y, controls.z]} 
-      scale={controls.scale} 
-      rotation={[0, controls.rotY, 0]}
-    />
-  )
+  return <primitive object={clonedScene} position={[1.25, 1.07, -0.71]} scale={0.08} rotation={[0, 0, 0]} />
 }
 
 function BeakerBase() {
   const { scene } = useGLTF('/models/equipment/chemistry/beaker.glb')
-  
-  const controls = useControls('Beaker-Base', {
-    x: { value: 0.80, min: -5, max: 5, step: 0.05 },
-    y: { value: 1.30, min: 0, max: 3, step: 0.05 },
-    z: { value: -0.25, min: -5, max: 5, step: 0.05 },
-    scale: { value: 0.10, min: 0.01, max: 1, step: 0.01 },
-    rotY: { value: 0, min: -3.14, max: 3.14, step: 0.1 },
-  })
-
   const clonedScene = useMemo(() => {
     const clone = scene.clone()
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-
-  return (
-    <primitive 
-      object={clonedScene} 
-      position={[controls.x, controls.y, controls.z]} 
-      scale={controls.scale} 
-      rotation={[0, controls.rotY, 0]}
-    />
-  )
+  return <primitive object={clonedScene} position={[1.10, 1.07, -1.31]} scale={0.07} rotation={[0, 0, 0]} />
 }
 
 function BeakerWater() {
   const { scene } = useGLTF('/models/equipment/chemistry/beaker.glb')
-  
-  const controls = useControls('Beaker-Water', {
-    x: { value: 0.40, min: -5, max: 5, step: 0.05 },
-    y: { value: 1.30, min: 0, max: 3, step: 0.05 },
-    z: { value: -0.25, min: -5, max: 5, step: 0.05 },
-    scale: { value: 0.10, min: 0.01, max: 1, step: 0.01 },
-    rotY: { value: 0, min: -3.14, max: 3.14, step: 0.1 },
-  })
-
   const clonedScene = useMemo(() => {
     const clone = scene.clone()
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-
-  return (
-    <primitive 
-      object={clonedScene} 
-      position={[controls.x, controls.y, controls.z]} 
-      scale={controls.scale} 
-      rotation={[0, controls.rotY, 0]}
-    />
-  )
+  return <primitive object={clonedScene} position={[1.42, 1.07, -0.51]} scale={0.04} rotation={[0, 0, 0]} />
 }
 
 export default function LabEnvironment() {
