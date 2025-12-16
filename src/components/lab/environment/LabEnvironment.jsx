@@ -27,18 +27,16 @@ function PHMeter() {
   return <primitive object={clonedScene} position={[1.50, 0.85, -1.2]} scale={2.17} rotation={[0, -2.1, 0]} />
 }
 
-// Shorter, wider cone at bottom of flask
-function FlaskLiquid({ position, color, opacity = 0.7 }) {
+function FlaskLiquid({ position, color, opacity = 0.75, scale = 0.10 }) {
   return (
     <mesh position={position}>
-      <coneGeometry args={[0.035, 0.03, 32]} />
+      <sphereGeometry args={[scale, 32, 32]} />
       <meshStandardMaterial 
         color={color} 
         transparent={true} 
         opacity={opacity}
         roughness={0.1}
-        metalness={0.2}
-        side={2}
+        metalness={0.3}
       />
     </mesh>
   )
@@ -54,7 +52,7 @@ function BeakerAcid() {
   return (
     <group>
       <primitive object={clonedScene} position={[1.40, 1.08, -0.7]} scale={0.10} rotation={[0, 0, 0]} />
-      <FlaskLiquid position={[1.40, 0.88, -0.7]} color="#ff2222" opacity={0.7} />
+      <FlaskLiquid position={[1.40, 1.08 - 0.21, -0.7]} color="#ff3333" opacity={0.75} scale={0.10} />
     </group>
   )
 }
@@ -69,7 +67,7 @@ function BeakerBase() {
   return (
     <group>
       <primitive object={clonedScene} position={[1.40, 1.07, -0.21]} scale={0.10} rotation={[0, 0, 0]} />
-      <FlaskLiquid position={[1.40, 0.87, -0.21]} color="#2255ff" opacity={0.7} />
+      <FlaskLiquid position={[1.40, 1.07 - 0.21, -0.21]} color="#3366ff" opacity={0.75} scale={0.10} />
     </group>
   )
 }
@@ -84,7 +82,7 @@ function BeakerWater() {
   return (
     <group>
       <primitive object={clonedScene} position={[1.40, 1.07, 0.19]} scale={0.10} rotation={[0, 0, 0]} />
-      <FlaskLiquid position={[1.40, 0.87, 0.19]} color="#66ccff" opacity={0.6} />
+      <FlaskLiquid position={[1.40, 1.07 - 0.21, 0.19]} color="#88ddff" opacity={0.5} scale={0.10} />
     </group>
   )
 }
