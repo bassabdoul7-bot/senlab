@@ -24,7 +24,24 @@ function PHMeter() {
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-  return <primitive object={clonedScene} position={[1.50, 0.85, -1.51]} scale={2.17} rotation={[0, -2.1, 0]} />
+  return <primitive object={clonedScene} position={[1.50, 0.85, -1.2]} scale={2.17} rotation={[0, -2.1, 0]} />
+}
+
+// Shorter, wider cone at bottom of flask
+function FlaskLiquid({ position, color, opacity = 0.7 }) {
+  return (
+    <mesh position={position}>
+      <coneGeometry args={[0.035, 0.03, 32]} />
+      <meshStandardMaterial 
+        color={color} 
+        transparent={true} 
+        opacity={opacity}
+        roughness={0.1}
+        metalness={0.2}
+        side={2}
+      />
+    </mesh>
+  )
 }
 
 function BeakerAcid() {
@@ -34,7 +51,12 @@ function BeakerAcid() {
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-  return <primitive object={clonedScene} position={[1.25, 1.07, -0.71]} scale={0.08} rotation={[0, 0, 0]} />
+  return (
+    <group>
+      <primitive object={clonedScene} position={[1.40, 1.08, -0.7]} scale={0.10} rotation={[0, 0, 0]} />
+      <FlaskLiquid position={[1.40, 0.88, -0.7]} color="#ff2222" opacity={0.7} />
+    </group>
+  )
 }
 
 function BeakerBase() {
@@ -44,7 +66,12 @@ function BeakerBase() {
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-  return <primitive object={clonedScene} position={[1.10, 1.07, -1.31]} scale={0.07} rotation={[0, 0, 0]} />
+  return (
+    <group>
+      <primitive object={clonedScene} position={[1.40, 1.07, -0.21]} scale={0.10} rotation={[0, 0, 0]} />
+      <FlaskLiquid position={[1.40, 0.87, -0.21]} color="#2255ff" opacity={0.7} />
+    </group>
+  )
 }
 
 function BeakerWater() {
@@ -54,7 +81,12 @@ function BeakerWater() {
     clone.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true } })
     return clone
   }, [scene])
-  return <primitive object={clonedScene} position={[1.42, 1.07, -0.51]} scale={0.04} rotation={[0, 0, 0]} />
+  return (
+    <group>
+      <primitive object={clonedScene} position={[1.40, 1.07, 0.19]} scale={0.10} rotation={[0, 0, 0]} />
+      <FlaskLiquid position={[1.40, 0.87, 0.19]} color="#66ccff" opacity={0.6} />
+    </group>
+  )
 }
 
 export default function LabEnvironment() {

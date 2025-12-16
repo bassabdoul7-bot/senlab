@@ -1,6 +1,6 @@
 ﻿import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment } from '@react-three/drei'
+import { Environment } from '@react-three/drei'
 import { useParams, useNavigate } from 'react-router-dom'
 import LabEnvironment from '../components/lab/environment/LabEnvironment'
 import ObjectivesScreen from '../components/lab/ObjectivesScreen'
@@ -18,8 +18,7 @@ export default function LabPage() {
   const setExperiment = useLabStore((s) => s.setExperiment)
   const currentExperiment = useLabStore((s) => s.currentExperiment)
   const isLabReady = useLabStore((s) => s.isLabReady)
-  const objectivesDismissed = useLabStore((s) => s.objectivesDismissed)
-  
+
   useEffect(() => {
     if (experimentId) {
       const experiment = getExperimentById(experimentId)
@@ -28,34 +27,32 @@ export default function LabPage() {
       }
     }
   }, [experimentId, setExperiment])
-  
+
   return (
     <div className="h-screen w-screen relative bg-gray-900">
       {!isLabReady && <LoadingScreen />}
       
       <Canvas
         shadows
-        camera={{ position: [0, 2, 3], fov: 50 }}
+        camera={{ 
+          position: [-0.80, 1.88, -0.04],
+          fov: 50
+        }}
         style={{ background: '#1a1a2e' }}
+        onCreated={({ camera }) => {
+          camera.lookAt(1.00, 1.00, -1.00)
+        }}
       >
         <Suspense fallback={null}>
           <LabEnvironment />
           <Environment preset="apartment" />
         </Suspense>
-        <OrbitControls 
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          minDistance={1}
-          maxDistance={6}
-          target={[0, 1, 0]}
-          maxPolarAngle={Math.PI / 2}
-        />
+        {/* No OrbitControls = camera locked */}
       </Canvas>
-      
+
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center gap-4">
-        <button 
+        <button
           onClick={() => navigate('/')}
           className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg backdrop-blur"
         >
@@ -65,7 +62,7 @@ export default function LabPage() {
           🧪 {currentExperiment?.titleFr || 'Laboratoire'}
         </h1>
       </div>
-      
+
       {/* UI Components */}
       <SidePanel />
       <Mascot />
